@@ -11,9 +11,9 @@ These tests are written in [Gherkin](https://github.com/cucumber/cucumber/wiki/G
 			And a first name is provided
 			And a last name is provided
 		When user information is entered
-		Then user information is assigned an LDAP user id
+		Then user information is assigned an LDAP user ID
 			And user information is added to LDAP
-			And user id is added to transfer app
+			And user ID is added to transfer app
 			And success notification is logged in transfer app
 			And success notification is displayed
 			And email notification is sent to new user with link to reset password
