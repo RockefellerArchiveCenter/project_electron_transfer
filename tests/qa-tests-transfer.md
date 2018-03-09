@@ -6,7 +6,7 @@ These tests are written in [Gherkin](https://github.com/cucumber/cucumber/wiki/G
 
 	Scenario: bag size and filename validate successfully
 		Given a bag does not contain special characters in the filename
-			And the size is less than 500 gigabytes
+			And the size is less than maximum size
 		When the validation script is run.
 		Then log bag info in database
 			And success notifications are delivered to system
@@ -14,7 +14,7 @@ These tests are written in [Gherkin](https://github.com/cucumber/cucumber/wiki/G
 			And trigger virus check feature
 
 	Scenario: bag is too big
-		Given a bag size exceeds 500 gigabytes
+		Given a bag size exceeds maximum size
 		When the validations script is run
 		Then the bag is deleted
 			And error information is logged in database
