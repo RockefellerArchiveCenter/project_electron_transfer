@@ -62,7 +62,7 @@ These tests are written in [Gherkin](https://github.com/cucumber/cucumber/wiki/G
 		Given accession exists in Accessioning Queue UI
 			And accession with a Source-Organization and one or more Record-Creators exists in Accessioning Queue UI
 		When user enters search into search field
-		Then display search results with matching creators
+		Then display search transfer with creator(s) matching query string
 
 	Scenario: accessioning archivist searches for accession by record type
 		Given one or more accessions exist in Accessioning Queue UI
@@ -84,116 +84,84 @@ These tests are written in [Gherkin](https://github.com/cucumber/cucumber/wiki/G
 		When user clicks on record type column
 		Then sort record type column by ascending or descending
 
-## Feature: Allow accessioning archivists to review or edit accession records
+## Feature: Allow accessioning archivists to review accession records
 
 	Scenario: accessioning archivist reviews accession records
-		Given accessioning archivist has permission to view Accessioning Queue UI
-		When archivist selects "Accession" in Accessioning Queue UI
-		Then open Accession Approval view
+		Given user is logged in
+		 	And user has permission to view Accessioning Queue UI
+		When user selects "Accession" in Accessioning Queue UI
+		Then show Accession Approval view
 			And autopopulate accession record fields
-			And allow archivist to view and read contents of each field
-
-	Scenario: accessioning archivist edits accession records
-		Given accessioning archivist has permission to view Accessioning Queue UI
-		When archivist selects "Accession" in Accessioning Queue UI
-		Then open Accession Approval window
-			And autopopulate accession record fields
-			And allow archivist to edit select accession record fields
-			And allow archivist to save updated accession
-
-## Feature: Allow accessioning archivists to approve accession records
-
-	Scenario: accessioning archivist approves accession records
-		Given accessioning archivist has permission to view Accessioning Queue UI
-		When archivist selects "Accession" in Accessioning Queue UI
-		Then open Accession Approval window
-			And autopopulate accession record fields
-			And allow archivist to enter target resource record
-			And allow archivist to edit accession record fields
-			And allow archivist to save updated accession
-			And remove accession from Accessioning Queue UI
-			And split single accession into individual transfers
+			And allow user to view contents of each field
+			And allow user to edit select accession record fields
+			And allow user to save updated accession
+			And send requests to microservices
 
 ## Feature: Create a DACS-compliant accession record in ArchivesSpace that includes donor-submitted metadata and as any description created by an appraisal archivist
 
 	Scenario: a DACS-compliant accession record is created in ArchivesSpace when a resource record already exists
-		Given an archivist approves accession record in Aurora
-			And accession record contains minimum required ArchivesSpace accession record data
-			And resource record already exists in ArchivesSpace
-		When an archivist adds additional accession data
-			And archivist enters target resource record information
-			And archivist saves accession record
-		Then Aurora creates JSON object from accession data
-			And Aurora sends JSON create request to ArchivesSpace server
-			And ArchivesSpace creates new accession record
+		Given a valid accession record in Aurora
+			And a linked resource record in ArchivesSpace
+		When user saves accession record
+		Then Aurora sends requests to microservices to create accession record
+			And Aurora sends requests to microservices to create archival objects
 
 	Scenario: a DACS-compliant accession record is not created in ArchivesSpace
-		Given an archivist approves accession record in Aurora
-			And accession record does not contain minimum required ArchivesSpace accession record data
-		When archivist saves accession record
+		Given an invalid accession record in Aurora
+			And a linked resource record in ArchivesSpace
+		When user saves accession record
 		Then Aurora presents error message specifying which fields are required but empty
-			And Aurora does not send JSON create request to ArchivesSpace server
+			And Aurora does not send requests to microservices to create accession record
+			And Aurora does not send requests to create archival objects
 
 ## Feature: Validate target resource record field in Aurora Accession Record UI
 
-	Scenario: an archivist types name of existing resource record
+	Scenario: a user types name of existing resource record
 		Given target resource record exists in ArchivesSpace
-		When archivist starts typing the title or identifier of that resource record
+		When user starts typing the title or identifier of that resource record
 		Then name of resource record appears as an option to select
-			And archivist selects the name of the appropriate resource record
+			And user selects the name of the appropriate resource record
 
-	Scenario: an archivist types name of resource record that does not exist
+	Scenario: a user types name of resource record that does not exist
 		Given target resource record does not exist in ArchivesSpace
-		When archivist starts typing the title or identifier of that resource record
+		When user starts typing the title or identifier of that resource record
 		Then name of resource record does not appear as an option to select
-			And archivist is not able to save the accession record
+			And user is not able to save the accession record
 
 ## Feature: Validate agents in Aurora Accession Record UI
 
 	Scenario: Source-Organization names matching existing ArchivesSpace agent records are marked as verified
-		Given a string value exists for the Source-Organization key
+		Given a valid accession record in Aurora
+			And a string value exists for the Source-Organization key in that accession record
 			And that string can be matched to the name of an existing agent in ArchivesSpace
-		When accessioning archivist selects "Accession" in Accession Queue UI
-		Then query ArchivesSpace for a matching name agent
-			And returns the URI for that agent
-			And display the Source-Organization as a verified name in the Accession Approval window
+		When user selects "Accession" in Accession Queue UI
+		Then display the Source-Organization as a verified name in the Accession Approval window
 
 	Scenario: Record-Creators names matching existing ArchivesSpace agent records are marked as verified
-		Given a string value exists for one or more Record-Creators keys
+		Given a valid accession record in Aurora
+			And a string value exists for one or more Record-Creators keys in that accession record
 			And that string can be matched to the name of an existing agent in ArchivesSpace
-		When accessioning archivist selects "Accession" in Accession Queue UI
-		Then query ArchivesSpace for a matching name agent
-			And returns the URI for that agent
-			And display the Record-Creator as a verified name in the Accession Approval window
+		When user selects "Accession" in Accession Queue UI
+		Then display the Record-Creator as a verified name in the Accession Approval window
 
 	Scenario: Source-Organization names which do not match existing ArchivesSpace agent records are marked as unverified
-		Given a string value exists for the Source-Organization key
+		Given a valid accession record in Aurora
+			And a string value exists for the Source-Organization key in that accession record
 			And that string cannot be matched to the name of an existing agent in ArchivesSpace
-		When accessioning archivist selects "Accession" in Accession Queue UI
-		Then query ArchivesSpace for a matching name agent
-			And display the Source-Organization as an unverified name in the Accession Approval window
+		When user selects "Accession" in Accession Queue UI
+		Then display the Source-Organization as an unverified name in the Accession Approval window
 
 	Scenario: Record-Creators which do not match existing ArchivesSpace agent records are marked as unverified
-		Given a string value exists for one or more Record-Creators key
+		Given a valid accession record in Aurora
+			And a string value exists for one or more Record-Creators key in that accession record
 			And that string cannot be matched to the name of an existing agent in ArchivesSpace
-		When accessioning archivist selects "Accession" in Accession Queue UI
-		Then query ArchivesSpace for a matching name agent
-			And display that Record-Creators as an unverified name in the Accession Approval window
-
-## Feature: Add metadata about individual transfers in an accession to an existing resource record in ArchivesSpace
-
-	Scenario: add metadata about individual transfers in an accession to an existing resource record in ArchivesSpace
-		Given one or more transfers have been grouped into an accession record
-			And a valid resource record has been selected
-		When an accession record is created in ArchivesSpace
-		Then metadata about each transfer is included in individual file-level components in the target resource record
-			And that metadata is grouped together under a grouping component in the target resource record
-			And data from bag-info.txt maps correctly to ArchivesSpace
+		When user selects "Accession" in Accession Queue UI
+		Then display that Record-Creators as an unverified name in the Accession Approval window
 
 ## Feature: Allow external application to update transfer status
 
 	Scenario: Update transfer status in Aurora
-		Given an object has passed through the appraisal and accessioning workflows successfully
-		When the object is stored in Fedora
-		Then the transfer status is updated to "accessioned" in Aurora
-			And a success notification is sent to user who uploaded the transfer
+		Given a transfer exists in Aurora
+		When an external system sends a request to update the status of that transfer
+		Then the transfer status is updated in Aurora
+			And a response indicating success is sent to the external system
