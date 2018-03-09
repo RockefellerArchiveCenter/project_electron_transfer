@@ -83,6 +83,13 @@ These tests are written in [Gherkin](https://github.com/cucumber/cucumber/wiki/G
 			And success notification is logged in Aurora
 			And success notification is displayed
 
+	Scenario: Edit organization acquisition type
+		Given user is logged in
+			And user has permissions to edit organization accounts
+			And a given organization account exists
+		Then user updates organization acquisition type
+			And updated acquisition type is saved in Aurora
+
 ## Feature: user permissions
 
 	Scenario: donor user permissions
